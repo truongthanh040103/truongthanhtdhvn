@@ -351,24 +351,139 @@ document.getElementById('year').textContent = new Date().getFullYear();
   "email":"truongthanh040103@gmail.com"
 }
 </script>
+<!-- Popup khởi động nhạc -->
 <div id="music-popup" style="position:fixed;top:0;left:0;width:100%;height:100%;
-background:#000c;display:flex;align-items:center;justify-content:center;z-index:9999;">
-  <button onclick="startMusic()" style="padding:15px 30px;font-size:20px;
-  border:none;border-radius:10px;background:#ff4757;color:#fff;cursor:pointer;">
-    🚀 Bắt đầu trải nghiệm
-  </button>
+background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;
+z-index:9999;">
+  <button onclick="initMusic()" style="padding:16px 32px;font-size:20px;
+  border:none;border-radius:14px;background:linear-gradient(90deg,#06b6d4,#3b82f6);
+  color:#fff;cursor:pointer;font-weight:bold;box-shadow:0 8px 24px rgba(0,0,0,0.4);
+  transition:transform 0.2s;">🎶 Bắt đầu nghe nhạc</button>
 </div>
 
-<audio id="bg-music" loop>
-  <source src="nhacnen.mp3" type="audio/mpeg">
-</audio>
+<!-- Icon nhạc -->
+<div id="music-icon" style="position:fixed;bottom:20px;right:20px;
+width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#2b6cb0,#3b82f6);
+display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:9998;
+box-shadow:0 6px 20px rgba(0,0,0,0.3);color:#fff;font-size:24px;font-weight:bold;
+transition:transform 0.3s;">
+  🎵
+</div>
 
+<!-- Trình phát nhạc mini -->
+<div id="music-player" style="position:fixed;bottom:20px;right:84px;
+background:#fff;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,0.25);
+padding:12px 16px;align-items:center;gap:12px;z-index:9999;
+font-family:Inter,sans-serif;opacity:0;transform:translateX(40px);
+pointer-events:none;transition:all 0.4s ease;">
+  
+  <button id="play-btn" style="background:#2b6cb0;color:#fff;border:none;
+  padding:8px 14px;border-radius:10px;cursor:pointer;font-weight:bold;">⏸</button>
+  
+  <button id="mute-btn" style="background:#ff4757;color:#fff;border:none;
+  padding:8px 14px;border-radius:10px;cursor:pointer;font-weight:bold;">🔊</button>
+  
+  <input id="volume" type="range" min="0" max="1" step="0.01" value="0.3" style="cursor:pointer;">
+  
+  <span id="vol-label" style="font-size:14px;color:#333;font-weight:bold;">30%</span>
+</div>
+
+<!-- Nhạc nền -->
+<audio id="bg-music" loop>
+  <source src="deepside.mp4" type="audio/mp4">
+  Trình duyệt của bạn không hỗ trợ phát nhạc.
+</audio>
 <script>
-  function startMusic(){
-    document.getElementById("bg-music").play();
-    document.getElementById("music-popup").style.display="none";
+  const audio = document.getElementById("bg-music");
+  const playBtn = document.getElementById("play-btn");
+  const muteBtn = document.getElementById("mute-btn");
+  const volumeSlider = document.getElementById("volume");
+  const volLabel = document.getElementById("vol-label");
+  const player = document.getElementById("music-player");
+  const icon = document.getElementById("music-icon");
+
+  function initMusic(){
+    audio.volume = 0.3; // Âm lượng mặc định 30%
+    volumeSlider.value = 0.3; 
+    volLabel.textContent = "30%";
+    audio.play().catch(err => console.log("Không thể phát nhạc:", err));
+    document.getElementById("music-popup").style.display = "none";
   }
+
+  // Play / Pause
+  playBtn.addEventListener("click", ()=>{
+    if(audio.paused){
+      audio.play();
+      playBtn.textContent = "⏸";
+    } else {
+      audio.pause();
+      playBtn.textContent = "▶";
+    }
+  });
+
+  // Mute / Unmute
+  muteBtn.addEventListener("click", ()=>{
+    audio.muted = !audio.muted;
+    muteBtn.textContent = audio.muted ? "🔇" : "🔊";
+  });
+
+  // Chỉnh âm lượng
+  volumeSlider.addEventListener("input", ()=>{
+    const val = parseFloat(volumeSlider.value);
+    audio.volume = val;
+    volLabel.textContent = Math.round(val * 100) + "%";
+  });
+
+  // Hover icon để hiện player
+  icon.addEventListener("mouseenter", ()=>{
+    player.style.opacity = "1";
+    player.style.transform = "translateX(0)";
+    player.style.pointerEvents = "auto";
+    icon.style.transform = "scale(1.1)";
+  });
+  icon.addEventListener("mouseleave", ()=>{
+    player.style.opacity = "0";
+    player.style.transform = "translateX(40px)";
+    player.style.pointerEvents = "none";
+    icon.style.transform = "scale(1)";
+  });
+
+  // Hover player giữ nguyên
+  player.addEventListener("mouseenter", ()=>{
+    player.style.opacity = "1";
+    player.style.transform = "translateX(0)";
+    player.style.pointerEvents = "auto";
+  });
+  player.addEventListener("mouseleave", ()=>{
+    player.style.opacity = "0";
+    player.style.transform = "translateX(40px)";
+    player.style.pointerEvents = "none";
+  });
+
+  // Điều khiển bằng bàn phím (F3 = mute, F5 = +volume, F6 = -volume)
+  document.addEventListener("keydown", (e)=>{
+    if(e.code === "F5"){ // tăng âm
+      let v = Math.min(1, audio.volume + 0.1);
+      audio.volume = v;
+      volumeSlider.value = v;
+      volLabel.textContent = Math.round(v*100)+"%";
+    }
+    if(e.code === "F6"){ // giảm âm
+      let v = Math.max(0, audio.volume - 0.1);
+      audio.volume = v;
+      volumeSlider.value = v;
+      volLabel.textContent = Math.round(v*100)+"%";
+    }
+    if(e.code === "F3"){ // mute
+      audio.muted = !audio.muted;
+      muteBtn.textContent = audio.muted ? "🔇" : "🔊";
+    }
+  });
+
+
 </script>
+
+
 
 </body>
 </html>
