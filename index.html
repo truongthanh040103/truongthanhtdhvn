@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
+
 <style>
   #qr-popup {
   position: fixed;
@@ -137,30 +138,37 @@
   .caret{display:inline-block;width:2px;height:1.1em;background:var(--accent);margin-left:6px;animation:blink 1s steps(2) infinite}
   @keyframes blink{50%{opacity:0}}
 
-/* Chatbox mới đẹp hơn */
+/* ================= Chatbox mới hoàn hảo ================= */
 #chat-toggle {
   position: fixed;
   right: 20px;
-  bottom: 100px;   /* tránh icon nhạc */
+  bottom: 100px;          /* tránh icon nhạc */
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: linear-gradient(135deg,var(--accent),var(--accent-2));
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
   font-size: 28px;
-  z-index: 9999;
+  z-index: 99999;         /* luôn nổi trên mọi phần tử */
   box-shadow: 0 8px 30px rgba(11,20,43,0.35);
   cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+#chat-toggle:hover {
+  transform: scale(1.1);
+  box-shadow: 0 12px 40px rgba(11,20,43,0.45);
 }
 
+/* Chat panel */
 #chat-panel {
   position: fixed;
   right: 20px;
   bottom: 170px;
   width: 320px;
+  max-height: 70vh;
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 20px 50px rgba(0,0,0,0.25);
@@ -170,13 +178,19 @@
   transform: translateY(12px);
   opacity: 0;
   pointer-events: none;
-  transition: all .25s ease;
+  transition: all 0.25s ease;
   font-family: var(--ff);
-  max-height: 70vh;
+  z-index: 99998;          /* cao hơn nội dung khác nhưng thấp hơn nút toggle */
 }
 
-#chat-panel.open { opacity: 1; transform: none; pointer-events: auto; }
+/* Mở chat */
+#chat-panel.open {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
 
+/* Header chat */
 #chat-panel header {
   background: linear-gradient(90deg, var(--accent), var(--accent-2));
   color: #fff;
@@ -185,8 +199,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
 }
 
+/* Messages */
 #chat-panel .messages {
   flex: 1;
   background: #f9fbff;
@@ -195,10 +212,10 @@
   font-size: 14px;
   display: flex;
   flex-direction: column;
+  gap: 6px;
 }
 
 .message {
-  margin: 6px 0;
   max-width: 80%;
   padding: 8px 12px;
   border-radius: 12px;
@@ -215,6 +232,7 @@
   align-self: flex-start;
 }
 
+/* Form chat */
 #chat-panel form {
   display: flex;
   border-top: 1px solid #eee;
@@ -235,24 +253,36 @@
   color: #fff;
   cursor: pointer;
   font-weight: 600;
+  transition: background 0.2s;
 }
+#chat-panel button:hover {
+  background: var(--accent-2);
+}
+
+/* Nút đóng chat */
 #chat-close {
   background: none;
   border: none;
   color: #fff;
   font-size: 18px;
   cursor: pointer;
-  transition: transform .2s;
+  transition: transform 0.2s ease;
 }
 #chat-close:hover {
   transform: scale(1.2);
 }
 
-@media (max-width:600px){
-  #chat-toggle { left: 20px; right: auto; }     /* chuyển nút chat sang trái */
-  #chat-panel  { left: 20px; right: auto; }     /* panel chat cũng theo sang trái */
+/* Responsive cho mobile */
+@media (max-width: 600px) {
+  #chat-toggle {
+    left: 20px;
+    right: auto;
+  }
+  #chat-panel {
+    left: 20px;
+    right: auto;
+  }
 }
-
 
 
   /* tiny helpers */
@@ -305,7 +335,6 @@
 
           <p class="lead" style="margin-top:18px;color:var(--muted)">Chuyên: thiết kế lò đúc công nghiệp, tối ưu năng suất, bản vẽ sản xuất theo tiêu chuẩn công nghiệp.</p>
         </div>
-
         <aside class="hero-card reveal">
           <img src="cover.jpg" alt="Cover">
           <div style="margin-top:12px">
@@ -314,6 +343,66 @@
           </div>
         </aside>
       </section>
+<!-- Nút mở Video -->
+<button id="btn-video" class="btn btn-download">🎬 Xem Video Giới thiệu</button>
+
+<!-- Popup Video -->
+<div id="video-popup" aria-hidden="true" 
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);
+            align-items:center;justify-content:center;z-index:9999">
+  <div style="background:#000;padding:10px;border-radius:14px;
+              box-shadow:0 20px 60px rgba(0,0,0,0.6);
+              animation:zoomIn .3s ease;max-width:90vw;max-height:80vh">
+    <!-- Video nhúng Google Drive -->
+    <iframe src="https://drive.google.com/file/d/1VzJ8pOhaZRrxigB1Ix3kwhDadp43C5k5/preview" 
+            style="width:100%;height:400px;border:none;border-radius:10px" 
+            allow="autoplay; encrypted-media" allowfullscreen>
+    </iframe>
+    <button id="video-close" class="btn btn-ghost" style="margin-top:10px;width:100%">Đóng</button>
+  </div>
+</div>
+
+<style>
+@keyframes zoomIn {
+  from { transform:scale(0.92); opacity:0 }
+  to   { transform:scale(1);   opacity:1 }
+}
+</style>
+
+<script>
+const videoBtn   = document.getElementById("btn-video");
+const videoPopup = document.getElementById("video-popup");
+const videoClose = document.getElementById("video-close");
+const bgMusic    = document.getElementById("bg-music"); // nếu có nhạc nền
+
+// Mở popup video
+if(videoBtn){
+  videoBtn.addEventListener("click", ()=>{
+    videoPopup.style.display = "flex";
+    videoPopup.setAttribute("aria-hidden","false");
+    if(bgMusic){ bgMusic.pause(); bgMusic.currentTime=0; bgMusic.muted=true; }
+  });
+}
+
+// Đóng popup video
+if(videoClose){
+  videoClose.addEventListener("click", ()=>{
+    videoPopup.style.display = "none";
+    videoPopup.setAttribute("aria-hidden","true");
+  });
+}
+
+// Click ngoài popup cũng đóng
+if(videoPopup){
+  videoPopup.addEventListener("click", e=>{
+    if(e.target===videoPopup){
+      videoPopup.style.display="none";
+      videoPopup.setAttribute("aria-hidden","true");
+    }
+  });
+}
+</script>
+
 
       <!-- projects -->
       <section id="work" class="section">
@@ -391,16 +480,70 @@
             <a class="btn btn-ghost" href="https://zalo.me/84852040103" target="_blank" style="background:#25d366;color:white">Zalo</a>
           </div>
         </div>
-<button id="btn-qr" class="btn btn-download" type="button">📱 Quét QR</button>
+<!-- Nút mở QR -->
+<button id="btn-qr" class="btn btn-download">📱 Quét QR</button>
 
 <!-- Popup QR -->
-<div id="qr-popup" class="modal" aria-hidden="true">
-  <div style="background:#fff;padding:20px;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,0.4);text-align:center;animation:zoomIn .3s ease">
+<div id="qr-popup" aria-hidden="true" 
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);
+            align-items:center;justify-content:center;z-index:9999">
+  <div style="background:#fff;padding:20px;border-radius:14px;
+              box-shadow:0 20px 60px rgba(0,0,0,0.4);text-align:center;
+              animation:zoomIn .3s ease;max-width:90%;width:300px">
     <h3 style="margin-top:0">Quét QR để kết nối nhanh</h3>
-    <img src="zalo.png" alt="QR Zalo" style="width:220px;height:auto;margin:12px auto;display:block;border-radius:10px;border:1px solid #eee">
+    <img id="qr-img" src="zalo.jpg" alt="QR Zalo" 
+         style="max-width:220px;height:auto;margin:12px auto;display:block;
+                border-radius:10px;border:1px solid #eee">
+    <div id="qr-error" style="display:none;color:red;margin-top:8px">
+      ⚠️ Không tìm thấy ảnh QR (zalo.jpg). Vui lòng kiểm tra lại file.
+    </div>
     <button id="qr-close" class="btn btn-ghost" style="margin-top:10px">Đóng</button>
   </div>
 </div>
+
+<style>
+@keyframes zoomIn {
+  from { transform:scale(0.92); opacity:0 }
+  to   { transform:scale(1);   opacity:1 }
+}
+</style>
+
+<script>
+const qrBtn = document.getElementById("btn-qr");
+const qrPopup = document.getElementById("qr-popup");
+const qrClose = document.getElementById("qr-close");
+const qrImg = document.getElementById("qr-img");
+const qrError = document.getElementById("qr-error");
+
+// Kiểm tra nếu ảnh load lỗi
+qrImg.onerror = () => {
+  qrImg.style.display = "none";
+  qrError.style.display = "block";
+};
+
+if(qrBtn){
+  qrBtn.addEventListener("click", ()=>{
+    qrPopup.style.display = "flex";
+    qrPopup.setAttribute("aria-hidden","false");
+  });
+}
+if(qrClose){
+  qrClose.addEventListener("click", ()=>{
+    qrPopup.style.display = "none";
+    qrPopup.setAttribute("aria-hidden","true");
+  });
+}
+if(qrPopup){
+  qrPopup.addEventListener("click", e=>{
+    if(e.target===qrPopup){
+      qrPopup.style.display="none";
+      qrPopup.setAttribute("aria-hidden","true");
+    }
+  });
+}
+</script>
+
+
         <!-- simple form -> mailto -->
         <form id="contact-form" style="margin-top:14px;display:grid;gap:10px;max-width:760px" class="reveal">
           <input type="text" id="c-name" placeholder="Họ tên" required style="padding:10px;border-radius:8px;border:1px solid #e8eef8">
@@ -696,32 +839,6 @@ document.addEventListener("keydown", (e)=>{
   "sameAs":["https://web.facebook.com/thanh.oppa.399"],
   "telephone":"+84852040103",
   "email":"truongthanh040103@gmail.com"
-  /* ---------- QR popup ---------- */
-const qrBtn = document.getElementById("btn-qr");
-const qrPopup = document.getElementById("qr-popup");
-const qrClose = document.getElementById("qr-close");
-
-if(qrBtn){
-  qrBtn.addEventListener("click", ()=> {
-    qrPopup.classList.add("active");
-    qrPopup.setAttribute("aria-hidden","false");
-  });
-}
-if(qrClose){
-  qrClose.addEventListener("click", ()=> {
-    qrPopup.classList.remove("active");
-    qrPopup.setAttribute("aria-hidden","true");
-  });
-}
-if(qrPopup){
-  qrPopup.addEventListener("click", e=> {
-    if(e.target===qrPopup){ // click nền tối để tắt
-      qrPopup.classList.remove("active");
-      qrPopup.setAttribute("aria-hidden","true");
-    }
-  });
-}
-
 }
 
 </script>
